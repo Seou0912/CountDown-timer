@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../oz-countdown-timer-sol/images/dora.jpeg" />
+    <title>카운트다운 타이머</title>
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(to right, #232526, #419b8e);
+        color: #fff;
+        margin: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      header {
+        font-size: 28px;
+        text-align: center;
+      }
+
+      #timer {
+        display: flex;
+        justify-content: center;
+        margin: 30px 0;
+      }
+
+      .time-unit {
+        margin: 0 10px;
+        text-align: center;
+      }
+
+      .time-unit > span {
+        display: block;
+        min-width: 60px;
+        font-size: 40px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .time-text {
+        transition: opacity 0.3s ease;
+        opacity: 1;
+      }
+
+      /* 애니메이션 효과 추가 */
+      .time-text.fade-effect {
+        opacity: 0;
+      }
+
+      .time-unit .label {
+        margin-top: 5px;
+        font-size: 16px;
+      }
+
+      .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background: hsl(212, 29%, 34%);
+        font-size: 14px;
+        text-align: center;
+        padding: 50px 0;
+      }
+
+      .footer a {
+        color: hsl(282, 100%, 21%);
+        text-decoration: none;
+      }
+
+      /* 반응형 디자인 */
+      @media (max-width: 600px) {
+        header {
+          font-size: 20px;
+          text-align: center;
+        }
+        .time-unit > span {
+          min-width: 50px;
+          font-size: 24px;
+        }
+
+        .time-unit {
+          margin: 0 6px;
+        }
+
+        .time-unit .label {
+          font-size: 12px;
+        }
+        .footer {
+          font-size: 12px;
+          margin-top: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>2024 카운트다운 타이머</header>
+
+      <!-- 타이머 표시 영역 -->
+      <div id="timer">
+        <div class="time-unit">
+          <span>
+            <span class="time-text" id="days">00</span>
+          </span>
+          <span class="label">Days</span>
+        </div>
+        <div class="time-unit">
+          <span>
+            <span class="time-text" id="hours">00</span>
+          </span>
+          <span class="label">Hours</span>
+        </div>
+        <div class="time-unit">
+          <span>
+            <span class="time-text" id="minutes">00</span>
+          </span>
+          <span class="label">Minutes</span>
+        </div>
+        <div class="time-unit">
+          <span>
+            <span class="time-text" id="seconds">00</span>
+          </span>
+          <span class="label">Seconds</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer 영역 -->
+    <div class="footer">
+      © 2024. <a href="https://ozcodingschool.com/" target="_blank">ozcodingschool</a>. All rights
+      reserved. Developed by <a href="#">Jung Seou🧙🏻‍♀️</a>.
+    </div>
+
+    <script>
+      // 현재 시간 값을 저장할 객체
+      var currentTime = {
+        days: null,
+        hours: null,
+        minutes: null,
+        seconds: null,
+      };
+
+      // 페이드 아웃 효과를 위한 함수
+      function fadeOutEffect(element) {
+        element.classList.add("fade-effect");
+      }
+
+      // 페이드 인 효과를 위한 함수
+      function fadeInEffect(element) {
+        element.classList.remove("fade-effect");
+      }
+
+      // 카운트다운 타이머 시작 함수
+      function startTimer(endDate) {
+        // 지정된 매초마다 실행되는 함수
+        var interval = setInterval(function () {
+          var now = new Date().getTime(); // 현재 시간을 밀리초로 가져옴
+          var distance = endDate - now; // 종료 시간까지 남은 밀리초 계산
+
+          // 남은 시간을 일, 시, 분, 초로 계산
+          // 이 부분은 남은 시간을 각각의 단위로 변환합니다.
+          var days = Math.floor(distance / (24 * 60 * 60 * 1000));
+          var hours = Math.floor((distance % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+          var minutes = Math.floor((distance % (60 * 60 * 1000)) / (60 * 1000));
+          var seconds = Math.floor((distance % (60 * 1000)) / 1000);
+
+          // 각 시간 단위가 변경되었는지 확인하고, 변경된 경우에만 업데이트 및 애니메이션 적용
+          updateWithFadeEffect("days", days, "days");
+          updateWithFadeEffect("hours", hours, "hours");
+          updateWithFadeEffect("minutes", minutes, "minutes");
+          updateWithFadeEffect("seconds", seconds, "seconds");
+
+          // 타이머가 0에 도달하면 종료
+          if (distance < 0) {
+            clearInterval(interval); // 타이머 중지
+            document.getElementById("timer").textContent = "시간이 만료되었습니다!";
+          }
+        }, 1000); // 1000 밀리초(1초) 간격으로 반복
+      }
+
+      // 숫자 업데이트 및 페이드 효과 적용
+      function updateWithFadeEffect(id, value, timeUnit) {
+        var element = document.getElementById(id);
+        var newValue = value < 10 ? "0" + value : value;
+
+        if (newValue !== currentTime[timeUnit]) {
+          fadeOutEffect(element);
+          setTimeout(() => {
+            element.textContent = newValue;
+            fadeInEffect(element);
+          }, 300); // 페이드 아웃 지속 시간에 맞춰 업데이트
+          currentTime[timeUnit] = newValue;
+        }
+      }
+
+      // 타이머 종료 날짜, 시간 설정
+      var endDate = new Date(2024, 11, 31, 23, 59, 59).getTime(); // 월은 0부터 시작하므로 11은 12월을 의미합니다.
+
+      startTimer(endDate); // 타이머 시작
+    </script>
+  </body>
+</html>
